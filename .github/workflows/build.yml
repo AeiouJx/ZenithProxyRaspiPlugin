@@ -1,0 +1,41 @@
+name: Plugin Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Setup JDK
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - name: Elevate wrapper permissions
+        run: chmod +x ./gradlew
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          dependency-graph: generate-and-submit
+
+      - name: Build Plugin
+        run: ./gradlew build
+
+      - name: Upload Plugin Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: plugin
+          path: build/libs/*.jar
+          archive: false
+          if-no-files-found: error
