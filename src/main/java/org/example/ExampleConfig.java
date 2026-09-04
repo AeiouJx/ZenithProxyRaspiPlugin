@@ -26,4 +26,19 @@ public class ExampleConfig {
         public int radius = 2000;
         public int minRadius = 100;
     }
+
+    public final PromoterConfig promoter = new PromoterConfig();
+    public static class PromoterConfig {
+        public boolean enabled = false;
+        public boolean whilePlayerConnected = false;
+        public boolean whisper = false;
+        public long delayTicks = 200;
+        public boolean randomOrder = false;
+        public boolean appendRandom = false;
+        public final java.util.ArrayList<String> messages = com.google.common.collect.Lists.newArrayList(
+            "ZenithProxy on top!",
+            "I just skipped queue thanks to ZenithProxy!",
+            "Download ZenithProxy on GitHub today! It's free!"
+        );
+    }
 }

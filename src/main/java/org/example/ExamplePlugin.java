@@ -10,6 +10,8 @@ import org.example.command.ExampleWanderCommand;
 import org.example.module.ExampleESPModule;
 import org.example.module.ExampleModule;
 import org.example.module.ExampleWanderModule;
+import org.example.module.PromoterModule;
+import org.example.command.PromoterCommand;
 
 @Plugin(
     id = BuildConstants.PLUGIN_ID,
@@ -36,6 +38,8 @@ public class ExamplePlugin implements ZenithProxyPlugin {
         pluginAPI.registerModule(new ExampleWanderModule());
         pluginAPI.registerCommand(new ExampleCommand());
         pluginAPI.registerCommand(new ExampleESPCommand());
+        pluginAPI.registerModule(new PromoterModule());
+        pluginAPI.registerCommand(new PromoterCommand());
         pluginAPI.registerCommand(new ExampleWanderCommand());
         LOG.info("Example Plugin loaded!");
     }
