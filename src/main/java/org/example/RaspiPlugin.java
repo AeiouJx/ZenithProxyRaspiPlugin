@@ -23,10 +23,10 @@ import org.example.command.PromoterCommand;
     authors = {"AeiouJx"},
     mcVersions = {BuildConstants.MC_VERSION} // to indicate any MC version: @Plugin(mcVersions = "*")
 )
-public class ExamplePlugin implements ZenithProxyPlugin {
+public class RaspiPlugin implements ZenithProxyPlugin {
     // public static for simple access from modules and commands
     // or alternatively, you could pass these around in constructors
-    public static ExampleConfig PLUGIN_CONFIG;
+    public static RaspiConfig PLUGIN_CONFIG;
     public static ComponentLogger LOG;
 
     @Override
@@ -34,7 +34,7 @@ public class ExamplePlugin implements ZenithProxyPlugin {
         LOG = pluginAPI.getLogger();
         LOG.info("Raspi Plugin loading...");
         // initialize any configurations before modules or commands might need to read them
-        PLUGIN_CONFIG = pluginAPI.registerConfig(BuildConstants.PLUGIN_ID, ExampleConfig.class);
+        PLUGIN_CONFIG = pluginAPI.registerConfig(BuildConstants.PLUGIN_ID, RaspiConfig.class);
         //pluginAPI.registerModule(new ExampleModule());
         //pluginAPI.registerModule(new ExampleESPModule());
         //pluginAPI.registerModule(new ExampleWanderModule());

@@ -11,7 +11,7 @@ package org.example;
  *
  * Fields to static inner classes generate nested JSON objects.
  */
-public class ExampleConfig {
+public class RaspiConfig {
     public boolean esp = false;
 
     public final ExampleModuleConfig exampleModule = new ExampleModuleConfig();

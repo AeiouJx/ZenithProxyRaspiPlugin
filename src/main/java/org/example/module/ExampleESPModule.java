@@ -5,7 +5,7 @@ import com.zenith.network.codec.PacketHandler;
 import com.zenith.network.codec.PacketHandlerCodec;
 import com.zenith.network.codec.PacketHandlerStateCodec;
 import com.zenith.network.server.ServerSession;
-import org.example.ExamplePlugin;
+import org.example.RaspiPlugin;
 import org.geysermc.mcprotocollib.protocol.data.ProtocolState;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.metadata.EntityMetadata;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.metadata.MetadataTypes;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class ExampleESPModule extends Module {
     @Override
     public boolean enabledSetting() {
-        return ExamplePlugin.PLUGIN_CONFIG.esp;
+        return RaspiPlugin.PLUGIN_CONFIG.esp;
     }
 
     // packets from player to zenith

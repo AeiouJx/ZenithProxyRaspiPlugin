@@ -20,7 +20,7 @@ import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
 import static com.zenith.Globals.MODULE;
 import static com.zenith.command.brigadier.ToggleArgumentType.getToggle;
 import static com.zenith.command.brigadier.ToggleArgumentType.toggle;
-import static org.example.ExamplePlugin.PLUGIN_CONFIG;
+import static org.example.RaspiPlugin.PLUGIN_CONFIG;
 
 public class PromoterCommand extends Command {
     @Override

@@ -5,7 +5,7 @@ import com.zenith.event.client.ClientBotTick;
 import com.zenith.module.api.Module;
 import com.zenith.util.timer.Timer;
 import com.zenith.util.timer.Timers;
-import org.example.ExamplePlugin;
+import org.example.RaspiPlugin;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public class ExampleModule extends Module {
 
     @Override
     public boolean enabledSetting() {
-        return ExamplePlugin.PLUGIN_CONFIG.exampleModule.enabled;
+        return RaspiPlugin.PLUGIN_CONFIG.exampleModule.enabled;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class ExampleModule extends Module {
     }
 
     private void handleBotTick(ClientBotTick event) {
-        if (timer.tick(ExamplePlugin.PLUGIN_CONFIG.exampleModule.delayTicks)) {
+        if (timer.tick(RaspiPlugin.PLUGIN_CONFIG.exampleModule.delayTicks)) {
             info("Hello from ExampleModule!");
         }
     }

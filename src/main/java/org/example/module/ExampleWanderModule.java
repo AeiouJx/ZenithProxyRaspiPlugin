@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import static com.github.rfresh2.EventConsumer.of;
 import static com.zenith.Globals.BARITONE;
 import static com.zenith.Globals.CACHE;
-import static org.example.ExamplePlugin.PLUGIN_CONFIG;
+import static org.example.RaspiPlugin.PLUGIN_CONFIG;
 
 public class ExampleWanderModule extends Module {
     private final Timer pathTimer = Timers.tickTimer();

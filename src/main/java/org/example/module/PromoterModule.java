@@ -18,7 +18,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static com.github.rfresh2.EventConsumer.of;
 import static com.zenith.Globals.CACHE;
-import static org.example.ExamplePlugin.PLUGIN_CONFIG;
+import static org.example.RaspiPlugin.PLUGIN_CONFIG;
 
 public class PromoterModule extends Module {
     private final Timer tickTimer = Timers.tickTimer();

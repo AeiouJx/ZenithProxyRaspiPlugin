@@ -11,8 +11,8 @@ import java.util.regex.Pattern;
 import static com.github.rfresh2.EventConsumer.of;
 import static com.zenith.Globals.CONFIG;
 import static com.zenith.util.config.Config.Authentication.AccountType.OFFLINE;
-import static org.example.ExamplePlugin.LOG;
-import static org.example.ExamplePlugin.PLUGIN_CONFIG;
+import static org.example.RaspiPlugin.LOG;
+import static org.example.RaspiPlugin.PLUGIN_CONFIG;
 
 public class AutoLoginModule extends Module {
     private final Pattern captchaPattern = Pattern.compile("^.*?/captcha\\s+(\\S+)", Pattern.CASE_INSENSITIVE);
