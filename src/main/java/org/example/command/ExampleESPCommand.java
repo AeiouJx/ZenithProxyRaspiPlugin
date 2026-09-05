@@ -7,7 +7,7 @@ import com.zenith.command.api.Command;
 import com.zenith.command.api.CommandCategory;
 import com.zenith.command.api.CommandContext;
 import com.zenith.command.api.CommandUsage;
-import org.example.ExamplePlugin;
+import org.example.RaspiPlugin;
 import org.example.module.ExampleESPModule;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.metadata.EntityMetadata;
 import org.geysermc.mcprotocollib.protocol.data.game.entity.metadata.MetadataTypes;
@@ -36,7 +36,7 @@ public class ExampleESPCommand extends Command {
     public LiteralArgumentBuilder<CommandContext> register() {
         return command("esp")
             .then(argument("toggle", toggle()).executes(c -> {
-                ExamplePlugin.PLUGIN_CONFIG.esp = getToggle(c, "toggle");
+                RaspiPlugin.PLUGIN_CONFIG.esp = getToggle(c, "toggle");
                 // make sure to sync so the module is actually toggled
                 MODULE.get(ExampleESPModule.class).syncEnabledFromConfig();
                 // array of sessions with the controlling player and any spectators
@@ -56,7 +56,7 @@ public class ExampleESPCommand extends Command {
                     });
                 }
                 c.getSource().getEmbed()
-                    .title("ESP " + toggleStrCaps(ExamplePlugin.PLUGIN_CONFIG.esp))
+                    .title("ESP " + toggleStrCaps(RaspiPlugin.PLUGIN_CONFIG.esp))
                     .primaryColor();
             }));
     }
