@@ -14,6 +14,8 @@ import org.example.module.AutoLoginModule;
 import org.example.module.PromoterModule;
 import org.example.command.AutoLoginCommand;
 import org.example.command.PromoterCommand;
+import org.example.command.BridgeCommand;
+import org.example.module.BridgeModule;
 
 @Plugin(
     id = BuildConstants.PLUGIN_ID,
@@ -44,8 +46,10 @@ public class RaspiPlugin implements ZenithProxyPlugin {
 
         pluginAPI.registerModule(new AutoLoginModule());
         pluginAPI.registerModule(new PromoterModule());
+        pluginAPI.registerModule(new BridgeModule());
         pluginAPI.registerCommand(new AutoLoginCommand());
         pluginAPI.registerCommand(new PromoterCommand());
+        pluginAPI.registerCommand(new BridgeCommand());
         LOG.info("Raspi Plugin loaded!");
     }
 }

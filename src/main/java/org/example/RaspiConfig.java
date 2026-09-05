@@ -32,6 +32,16 @@ public class RaspiConfig {
         public boolean enabled = false;
     }
 
+    public final BridgeConfig bridge = new BridgeConfig();
+    public static class BridgeConfig {
+        public boolean enabled = false;
+        public String wsUrl = "ws://127.0.0.1:8765/ws";
+        public String sharedToken = "change-me";
+        public String serverId = "default";
+        public int heartbeatIntervalSeconds = 5;
+        public int reconnectIntervalSeconds = 5;
+    }
+
     public final PromoterConfig promoter = new PromoterConfig();
     public static class PromoterConfig {
         public boolean enabled = false;
