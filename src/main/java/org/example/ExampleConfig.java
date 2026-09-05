@@ -27,6 +27,11 @@ public class ExampleConfig {
         public int minRadius = 100;
     }
 
+    public final AutoLoginConfig autoLogin = new AutoLoginConfig();
+    public static class AutoLoginConfig {
+        public boolean enabled = false;
+    }
+
     public final PromoterConfig promoter = new PromoterConfig();
     public static class PromoterConfig {
         public boolean enabled = false;

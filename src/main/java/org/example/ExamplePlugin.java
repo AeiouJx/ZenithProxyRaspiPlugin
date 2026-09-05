@@ -10,15 +10,17 @@ import org.example.command.ExampleWanderCommand;
 import org.example.module.ExampleESPModule;
 import org.example.module.ExampleModule;
 import org.example.module.ExampleWanderModule;
+import org.example.module.AutoLoginModule;
 import org.example.module.PromoterModule;
+import org.example.command.AutoLoginCommand;
 import org.example.command.PromoterCommand;
 
 @Plugin(
     id = BuildConstants.PLUGIN_ID,
     version = BuildConstants.VERSION,
-    description = "ZenithProxy Example Plugin",
-    url = "https://github.com/rfresh2/ZenithProxyExamplePlugin",
-    authors = {"rfresh2"},
+    description = "ZenithProxy Raspi Plugin",
+    url = "https://github.com/AeiouJx/ZenithProxyRaspiPlugin",
+    authors = {"AeiouJx"},
     mcVersions = {BuildConstants.MC_VERSION} // to indicate any MC version: @Plugin(mcVersions = "*")
 )
 public class ExamplePlugin implements ZenithProxyPlugin {
@@ -30,17 +32,20 @@ public class ExamplePlugin implements ZenithProxyPlugin {
     @Override
     public void onLoad(PluginAPI pluginAPI) {
         LOG = pluginAPI.getLogger();
-        LOG.info("Example Plugin loading...");
+        LOG.info("Raspi Plugin loading...");
         // initialize any configurations before modules or commands might need to read them
         PLUGIN_CONFIG = pluginAPI.registerConfig(BuildConstants.PLUGIN_ID, ExampleConfig.class);
-        pluginAPI.registerModule(new ExampleModule());
-        pluginAPI.registerModule(new ExampleESPModule());
-        pluginAPI.registerModule(new ExampleWanderModule());
-        pluginAPI.registerCommand(new ExampleCommand());
-        pluginAPI.registerCommand(new ExampleESPCommand());
+        //pluginAPI.registerModule(new ExampleModule());
+        //pluginAPI.registerModule(new ExampleESPModule());
+        //pluginAPI.registerModule(new ExampleWanderModule());
+        //pluginAPI.registerCommand(new ExampleCommand());
+        //pluginAPI.registerCommand(new ExampleESPCommand());
+        //pluginAPI.registerCommand(new ExampleWanderCommand());
+
+        pluginAPI.registerModule(new AutoLoginModule());
         pluginAPI.registerModule(new PromoterModule());
+        pluginAPI.registerCommand(new AutoLoginCommand());
         pluginAPI.registerCommand(new PromoterCommand());
-        pluginAPI.registerCommand(new ExampleWanderCommand());
-        LOG.info("Example Plugin loaded!");
+        LOG.info("Raspi Plugin loaded!");
     }
 }
