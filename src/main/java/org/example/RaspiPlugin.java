@@ -16,6 +16,8 @@ import org.example.command.AutoLoginCommand;
 import org.example.command.PromoterCommand;
 import org.example.command.BridgeCommand;
 import org.example.module.BridgeModule;
+import org.example.web.api.WebServer;
+import org.example.web.command.WebAPICommand;
 
 @Plugin(
     id = BuildConstants.PLUGIN_ID,
@@ -30,6 +32,7 @@ public class RaspiPlugin implements ZenithProxyPlugin {
     // or alternatively, you could pass these around in constructors
     public static RaspiConfig PLUGIN_CONFIG;
     public static ComponentLogger LOG;
+    public static WebServer WEB_SERVER;
 
     @Override
     public void onLoad(PluginAPI pluginAPI) {
@@ -50,6 +53,11 @@ public class RaspiPlugin implements ZenithProxyPlugin {
         pluginAPI.registerCommand(new AutoLoginCommand());
         pluginAPI.registerCommand(new PromoterCommand());
         pluginAPI.registerCommand(new BridgeCommand());
+        WEB_SERVER = new WebServer();
+        if (PLUGIN_CONFIG.webApi.enabled) {
+            WEB_SERVER.start();
+        }
+        pluginAPI.registerCommand(new WebAPICommand());
         LOG.info("Raspi Plugin loaded!");
     }
 }

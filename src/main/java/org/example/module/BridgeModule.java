@@ -203,6 +203,7 @@ public class BridgeModule extends Module {
     private void handlePlayerConnected(final ServerPlayerConnectedEvent event) {
         var data = new JsonObject();
         data.addProperty("player", event.playerEntry().getName());
+        
         sendEvent("player_join", data);
     }
 

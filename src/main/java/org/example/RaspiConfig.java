@@ -32,6 +32,18 @@ public class RaspiConfig {
         public boolean enabled = false;
     }
 
+    public final WebApiConfig webApi = new WebApiConfig();
+    public static class WebApiConfig {
+        public boolean enabled = true;
+        public int port = 8080;
+        public String authToken = java.util.UUID.randomUUID().toString();
+        public boolean webUI = true;
+        public int logRetentionEntries = 150;
+        public boolean rateLimiter = true;
+        public int rateLimitRequestsPerMinute = 30;
+        public boolean commandsAccountOwnerPerms = false;
+    }
+
     public final BridgeConfig bridge = new BridgeConfig();
     public static class BridgeConfig {
         public boolean enabled = false;

@@ -37,7 +37,7 @@ dependencies {
     zenithProxy("com.zenith:ZenithProxy:$mc-SNAPSHOT")
 
     /** to include dependencies into your plugin jar **/
-//    shade("com.github.ben-manes.caffeine:caffeine:3.2.0")
+    shade("io.javalin:javalin:7.2.3")
 }
 
 tasks {
@@ -48,16 +48,21 @@ tasks {
          * build and examine your plugin jar contents to check
          * https://gradleup.com/shadow/configuration/relocation/
          */
-//        val basePackage = "${project.group}.shadow"
-//        relocate("com.github.benmanes.caffeine", "$basePackage.caffeine")
+        val basePackage = "${project.group}.web.shadow"
+        relocate("io.javalin", "$basePackage.javalin")
+        relocate("jakarta.servlet", "$basePackage.jakarta.servlet")
+        relocate("kotlin", "$basePackage.kotlin")
+        relocate("org.eclipse", "$basePackage.org.eclipse")
+        exclude("META-INF/maven/**")
 
         /**
          * remove unneeded transitive dependencies
          * https://gradleup.com/shadow/configuration/dependencies/#filtering-dependencies
          */
-//        dependencies {
-//            exclude(dependency(":error_prone_annotations:.*"))
-//            exclude(dependency(":jspecify:.*"))
-//        }
+        dependencies {
+            exclude(dependency("org.slf4j:.*:.*"))
+            exclude(dependency("org.jetbrains:annotations:.*:.*"))
+            exclude(dependency("org.ow2.asm:.*:.*"))
+        }
     }
 }

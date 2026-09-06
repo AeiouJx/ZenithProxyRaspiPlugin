@@ -10,7 +10,7 @@ import org.example.module.BridgeModule;
 import java.time.Duration;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.getString;
-import static com.mojang.brigadier.arguments.StringArgumentType.string;
+import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
 import static com.zenith.Globals.MODULE;
 import static com.zenith.command.brigadier.ToggleArgumentType.getToggle;
 import static com.zenith.command.brigadier.ToggleArgumentType.toggle;
@@ -68,20 +68,20 @@ public class BridgeCommand extends Command {
                     .title("Reconnecting...");
             }))
             .then(literal("wsUrl")
-                .then(argument("url", string()).executes(c -> {
+                .then(argument("url", greedyString()).executes(c -> {
                     PLUGIN_CONFIG().bridge.wsUrl = getString(c, "url");
                     c.getSource().getEmbed()
                         .title("WS URL Updated!")
                         .description(PLUGIN_CONFIG().bridge.wsUrl);
                 })))
             .then(literal("sharedToken")
-                .then(argument("token", string()).executes(c -> {
+                .then(argument("token", greedyString()).executes(c -> {
                     PLUGIN_CONFIG().bridge.sharedToken = getString(c, "token");
                     c.getSource().getEmbed()
                         .title("Shared Token Updated!");
                 })))
             .then(literal("serverId")
-                .then(argument("id", string()).executes(c -> {
+                .then(argument("id", greedyString()).executes(c -> {
                     PLUGIN_CONFIG().bridge.serverId = getString(c, "id");
                     c.getSource().getEmbed()
                         .title("Server ID Updated!")
