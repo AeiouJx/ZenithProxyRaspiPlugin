@@ -51,6 +51,7 @@ public class BridgeModule extends Module {
         public void onOpen(WebSocket webSocket) {
             BridgeModule.this.webSocket = webSocket;
             connected = true;
+            lastError = null;
             LOG.info("[Bridge] Connected to {}", PLUGIN_CONFIG.bridge.wsUrl);
             startHeartbeat();
             webSocket.request(1);
@@ -76,8 +77,8 @@ public class BridgeModule extends Module {
 
         @Override
         public void onError(WebSocket webSocket, Throwable error) {
-            lastError = error.getMessage();
-            LOG.error("[Bridge] WebSocket error: {}", error.getMessage());
+            lastError = describeFailure(error);
+            LOG.error("[Bridge] WebSocket error: {}", lastError);
             if (webSocket == null) {
                 scheduleReconnect();
             } else {
@@ -144,15 +145,40 @@ public class BridgeModule extends Module {
                 .buildAsync(URI.create(PLUGIN_CONFIG.bridge.wsUrl), listener)
                 .whenComplete((socket, ex) -> {
                     if (ex != null) {
-                        lastError = ex.getMessage();
-                        LOG.error("[Bridge] Connection failed: {}", ex.getMessage());
-                        scheduleReconnect();
+                        onConnectFailure(ex);
                     }
                 });
         } catch (final Exception e) {
-            lastError = e.getMessage();
-            LOG.error("[Bridge] Connection error: {}", e.getMessage());
-            scheduleReconnect();
+            onConnectFailure(e);
+        }
+    }
+
+    private void onConnectFailure(final Throwable ex) {
+        final String error = describeFailure(ex);
+        final boolean changed = !error.equals(lastError);
+        lastError = error;
+        if (changed) {
+            LOG.error("[Bridge] Connection failed: {}", error);
+            LOG.warn("[Bridge] Connection to {} failed. Check that: 1) the AstrBot WebSocket server is running and listening on 0.0.0.0:{} 2) the server firewall / cloud security group allows inbound TCP on that port 3) the scheme matches (ws:// for plain, wss:// for TLS)",
+                PLUGIN_CONFIG.bridge.wsUrl, wsPort(PLUGIN_CONFIG.bridge.wsUrl));
+        }
+        scheduleReconnect();
+    }
+
+    private static String describeFailure(final Throwable throwable) {
+        Throwable current = throwable;
+        while (current.getCause() != null) {
+            current = current.getCause();
+        }
+        final String message = current.getMessage();
+        return current.getClass().getSimpleName() + (message == null || message.isBlank() ? "" : ": " + message);
+    }
+
+    private static String wsPort(final String wsUrl) {
+        try {
+            return String.valueOf(URI.create(wsUrl).getPort() == -1 ? 80 : URI.create(wsUrl).getPort());
+        } catch (final Exception e) {
+            return "?";
         }
     }
 
@@ -527,9 +553,10 @@ public class BridgeModule extends Module {
     private void scheduleReconnect() {
         cancelReconnect();
         if (!isEnabled()) return;
+        final long delayMs = PLUGIN_CONFIG.bridge.reconnectIntervalSeconds * 1000L
+            + (long) (Math.random() * 1000);
         LOG.info("[Bridge] Reconnecting in {}s...", PLUGIN_CONFIG.bridge.reconnectIntervalSeconds);
-        reconnectFuture = executor.schedule(this::connect,
-            PLUGIN_CONFIG.bridge.reconnectIntervalSeconds, TimeUnit.SECONDS);
+        reconnectFuture = executor.schedule(this::connect, delayMs, TimeUnit.MILLISECONDS);
     }
 
     private void cancelReconnect() {

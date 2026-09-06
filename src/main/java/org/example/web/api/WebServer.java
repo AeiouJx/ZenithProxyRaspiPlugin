@@ -47,11 +47,17 @@ public class WebServer {
         if (server != null) {
             stop();
         }
-        server = createServer();
-        server.start(RaspiPlugin.PLUGIN_CONFIG.webApi.port);
-        RaspiPlugin.LOG.info("Web API started on port {}", RaspiPlugin.PLUGIN_CONFIG.webApi.port);
-        RaspiPlugin.LOG.info("Auth token: {}", RaspiPlugin.PLUGIN_CONFIG.webApi.authToken);
-        RaspiPlugin.LOG.info("ZenithProxyWebAPI is running on http://localhost:{}", RaspiPlugin.PLUGIN_CONFIG.webApi.port);
+        try {
+            server = createServer();
+            server.start(RaspiPlugin.PLUGIN_CONFIG.webApi.port);
+            RaspiPlugin.LOG.info("Web API started on port {}", RaspiPlugin.PLUGIN_CONFIG.webApi.port);
+            RaspiPlugin.LOG.info("Auth token: {}", RaspiPlugin.PLUGIN_CONFIG.webApi.authToken);
+            RaspiPlugin.LOG.info("ZenithProxyWebAPI is running on http://localhost:{}", RaspiPlugin.PLUGIN_CONFIG.webApi.port);
+        } catch (final Exception e) {
+            server = null;
+            RaspiPlugin.LOG.error("Web API failed to start on port {}: {}", RaspiPlugin.PLUGIN_CONFIG.webApi.port, e.getMessage());
+            RaspiPlugin.LOG.warn("Web API is not available. Pick a free port with '/webApi port <port>' then enable with '/webApi on'");
+        }
     }
 
     public synchronized void stop() {
