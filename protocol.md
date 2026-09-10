@@ -82,7 +82,7 @@ S 回复 `hello_ack`:
 
 ### event_type 总表
 
-> 分类用于语义归类与推送开关分组(见 §12):`CHAT` 聊天、`BOT` Bot 自身状态、`SERVER` 服务器内其他玩家/实体、`QUEUE` 排队、`CONN` 代理控制连接、`PLUGIN` 插件/更新/任务、`SCAN` 扫描。
+> 分类用于语义归类与推送开关分组(见 §12):`CHAT` 聊天、`BOT` Bot 自身状态与行为、`THREAT` 针对 Bot 的威胁预警、`SERVER` 服务器内其他玩家/实体、`QUEUE` 排队、`CONN` 代理控制连接、`OPS` 运维(插件/更新/定时任务)、`SCAN` 扫描。
 > **语义列描述触发时机与含义**,字段含义详见表后字段说明。
 
 | event_type | 分类 | 语义(触发时机) | data 字段 |
@@ -108,20 +108,20 @@ S 回复 `hello_ack`:
 | `replay_started` | BOT | **录像开始** | - |
 | `replay_stopped` | BOT | **录像结束**,可选带录像文件名 | `file`(str, 可选) |
 | `active_hours_connect` | BOT | **活跃时段自动连接**触发,`will_wait=true` 表示先等待 1 分钟 | `will_wait`(bool) |
+| `spawn_patrol_target` | BOT | **Bot 出生点巡逻模块发现目标玩家**及坐标(主动防御行为) | `player`(str), `x`(int), `y`(int), `z`(int) |
+| `spawn_patrol_target_killed` | BOT | **出生点巡逻目标死亡**(Bot 击杀或自然死亡),`message` 为死亡文本 | `player`(str), `message`(str) |
+| `attack` | THREAT | **有玩家攻击了 Bot**(Bot 被攻击预警),附攻击者名称与坐标 | `player`(str), `x`(num), `y`(num), `z`(num) |
+| `totem_pop` | THREAT | **附近玩家 totem 被消耗**(可能正在与 Bot 对抗),剩余数量 | `totems_remaining`(int) |
+| `totem_empty` | THREAT | **附近玩家已无 totem**(针对了我们或可能攻击我们,威胁解除迹象) | - |
 | `player_join` | SERVER | **某玩家进入服务器**(非 Bot),`message` 为原生描述如 `k70pro joined the game` | `player`(str), `message`(str) |
 | `player_leave` | SERVER | **某玩家离开服务器**(非 Bot),`message` 为原生描述如 `k70pro left the game` | `player`(str), `message`(str) |
 | `achievement` | SERVER | **玩家达成成就**(核心 ChatParser 解析公告文本) | `player`(str), `achievement`(str) |
-| `player_death` | SERVER | **服务器上玩家死亡广播**(victim 为死者,非 Bot;killer/weapon 可选) | `victim`(str), `killer`(str, 可选), `weapon`(str, 可选) |
-| `attack` | SERVER | **有玩家攻击了 Bot**,附攻击者名称与坐标 | `player`(str), `x`(num), `y`(num), `z`(num) |
-| `totem_pop` | SERVER | **附近玩家 totem 被消耗**,剩余数量 | `totems_remaining`(int) |
-| `totem_empty` | SERVER | **附近玩家已无 totem**(针对了我们或可能攻击我们) | - |
+| `player_death` | SERVER | **服务器上玩家死亡广播**(victim 为死者,非 Bot;`cause` 为完整死亡原因原生文本如 `was slain by Eover`,killer/weapon 可选) | `victim`(str), `cause`(str), `killer`(str, 可选), `weapon`(str, 可选) |
 | `visual_enter` | SERVER | **玩家进入 Bot 视野**(内存可见范围) | `player`(str), `x`(int), `y`(int), `z`(int) |
 | `visual_leave` | SERVER | **玩家离开 Bot 视野** | `player`(str), `x`(int), `y`(int), `z`(int) |
 | `visual_logout` | SERVER | **视野内玩家退出游戏**,坐标为最后下线位置 | `player`(str), `x`(int), `y`(int), `z`(int) |
-| `connection_denied` | SERVER | **黑名单/非白名单玩家连接代理被拒**,`reason` 取值 `blacklisted` / `not_whitelisted` | `player`(str), `ip`(str), `reason`(str) |
+| `connection_denied` | SERVER | **黑名单/非白名单玩家连接代理被拒**(代理安全),`reason` 取值 `blacklisted` / `not_whitelisted` | `player`(str), `ip`(str), `reason`(str) |
 | `server_restarting` | SERVER | **服务器重启公告** | `message`(str) |
-| `spawn_patrol_target` | SERVER | **出生点巡逻发现目标玩家**及坐标 | `player`(str), `x`(int), `y`(int), `z`(int) |
-| `spawn_patrol_target_killed` | SERVER | **出生点巡逻目标死亡**(Bot 击杀或自然死亡),`message` 为死亡文本 | `player`(str), `message`(str) |
 | `queue_position` | QUEUE | **排队位次更新**(节流:≤1 次/30s) | `position`(int) |
 | `queue_complete` | QUEUE | **排队完成**,已进入服务器 | `duration_seconds`(int) |
 | `queue_start` | QUEUE | **开始排队**,`was_online=true` 表示被踢回队列(如服务器重启) | `was_online`(bool), `online_duration_seconds`(int) |
@@ -131,11 +131,11 @@ S 回复 `hello_ack`:
 | `client_player_disconnected` | CONN | **控制玩家断开代理** | `player`(str, 可选), `reason`(str, 可选) |
 | `spectator_connected` | CONN | **观察者连接代理** | `player`(str), `mc_version`(str, 可选) |
 | `spectator_disconnected` | CONN | **观察者断开代理** | `player`(str) |
-| `plugin_load_failure` | PLUGIN | **某个插件加载失败** | `id`(str, 可选), `jar`(str), `message`(str) |
-| `plugin_loaded` | PLUGIN | **某个插件加载成功** | `id`(str), `description`(str), `version`(str), `url`(str), `authors`(str) |
-| `update_available` | PLUGIN | **检测到有新版本**(重启后生效) | `version`(str, 可选) |
-| `update_start` | PLUGIN | **开始更新/重启** | `version`(str, 可选) |
-| `tasks_command` | PLUGIN | **内置定时任务执行了命令** | `command`(str) |
+| `plugin_load_failure` | OPS | **某个插件加载失败** | `id`(str, 可选), `jar`(str), `message`(str) |
+| `plugin_loaded` | OPS | **某个插件加载成功** | `id`(str), `description`(str), `version`(str), `url`(str), `authors`(str) |
+| `update_available` | OPS | **检测到有新版本**(重启后生效) | `version`(str, 可选) |
+| `update_start` | OPS | **开始更新/重启** | `version`(str, 可选) |
+| `tasks_command` | OPS | **内置定时任务执行了命令** | `command`(str) |
 | `scan_found` | SCAN | **扫描首次发现目标**(方块/实体)及坐标 | `target`(str), `name`(str), `x`(int), `y`(int), `z`(int), `distance`(int) |
 
 字段说明:
@@ -145,13 +145,15 @@ S 回复 `hello_ack`:
 
 > **3c3u.org 服务器消息解析说明**:该服使用自定义聊天插件,所有聊天内容(公共聊天、私聊、系统消息)**统一走 `SystemChatEvent`**,`PublicChatEvent` / `WhisperChatEvent` 在本服不会触发。因此 **文本 → 结构化事件的解析全部由 G 端(插件)完成**:S 端收到的 `event_type` 已是归类结果(`chat`/`whisper`/`achievement`/`system` 等),S 端**只需按事件类型消费,无需也切勿自行解析原始文本**。
 >
-> G 端 `ChatMessageParser` 内按固定顺序解析(以下为 G 端内部实现,仅供理解,不属于 S 端职责):
+> G 端优先读取系统消息**原始组件的 `translate` 键**做强语义判断,失败再按文本正则兜底(以下为 G 端内部实现,仅供理解,不属于 S 端职责):
+> 0. **translate 键预判** — 3c3u 的模板消息用 `translate` 字段标记类型:**以 `chat.type.advancement.` 开头 → 成就**;以 `death.` 开头、或值含 `%1$s`(内嵌模板,如 `%1$s was smashed by %2$s`)** → 玩家死亡**;普通聊天/私聊顶层无 translate。死亡时 `arguments()[0]` 取受害者、`arguments()[1]` 取击杀者(仅内嵌模板型)
 > 1. **私聊** — 正则 `^📨\s*(.+?)\s*[➡→]\s*(.+)$` → `whisper`,输出 `{outgoing, sender, receiver, message}`:
 >    - sender 为 `You`(或 == Bot 账号名)时 `outgoing=true`(Bot 借 3c3u 界面发出的私聊),此时**`receiver` = 箭头后首个空格词(目标玩家,含 `\|\|` 离线号原样)**,`message` = 剩余部分
 >    - sender 为他人时 `outgoing=false`,`receiver` = 空(收件人恒为 Bot),`message` = 箭头后全部
 > 2. **公共聊天** — 正则 `^«(.+?)»\s*(.*)$` → `chat`,输出 `{sender, message}`;`sender` 可含 `\|\|` 离线号前缀(原样保留),`message` 为 `»` 后全部内容(含 `>` 等原样保留)
-> 3. **成就** — `xxx has made the advancement: yyy` / `xxx has completed the challenge: yyy` / `xxx has reached the goal: yyy` → `achievement`,输出 `{player, achievement}`
-> 4. **兜底** — 其余全部 → `system`,输出原始文本 `{message}`
+> 3. **成就** — `xxx has made the advancement` / `xxx has completed the challenge` / `xxx has reached the goal`,成就名分隔符兼容 `: yyy` 与 `[yyy]` → `achievement`,输出 `{player, achievement}`
+> 4. **玩家死亡** — `victim was/were/got/died ...` → `player_death`,输出 `{victim, cause, killer, weapon}`;死亡原因(`cause`)为动词短语原文(如 `slain by Eover`),`by <击杀者>` 提取 `killer`(`using <武器>` 提取 `weapon`),无 `by` 时 killer/weapon 为空串;`was/were/got/died` 前缀之外的死亡动词(如 `fell from a high place`)由第 0 步 translate 预判兜底
+> 5. **兜底** — 其余全部 → `system`,输出原始文本 `{message}`
 
 ### 6.1 G 端 system 兜底消息再解析(持续扩展,无需 S 端配合)
 
@@ -161,8 +163,7 @@ S 回复 `hello_ack`:
 
 | 消息类别 | 理想事件 | 兜底原因 |
 |---|---|---|
-| 服务器死亡广播/击杀文本 | `player_death` | 3c3u 死亡消息格式与 `DeathMessageChatEvent` 解析不兼容 |
-| Bot 自身死亡文本 | `bot_death_message` | 同上,`ClientDeathMessageEvent` 可能不触发 |
+| Bot 自身死亡文本 | `bot_death_message` | `ClientDeathMessageEvent` 可能不触发,待 3c3u 死亡文本样例 |
 | 玩家进服/出服提示 | `player_join` / `player_leave` | `ServerPlayerConnectedEvent`/`ServerPlayerDisconnectedEvent` 可能不触发 |
 | 服务器重启公告 | `server_restarting` | `ServerRestartingEvent` 可能不触发 |
 | 其他未识别系统提示 | - | 需测试后逐条归类 |
@@ -276,7 +277,7 @@ AstrBot 将接收到的 `event` 推送到 QQ 群(目标群号配置 `minecraft_e
 ### 12.1 开关体系
 
 - **总开关** `push_enabled`(默认 `true`):为 `false` 时一切事件不推送
-- **分组开关**:按 §6 分类 `CHAT/BOT/SERVER/QUEUE/CONN/PLUGIN/SCAN` 细分(默认值见表)
+- **分组开关**:按 §6 分类 `CHAT/BOT/THREAT/SERVER/QUEUE/CONN/OPS/SCAN` 细分(默认值见表)
 - **事件级开关** `push_{event_type}`(默认 `跟随分组`):需要对单个事件独立控制时显式设置布尔值
 
 判定顺序:`push_enabled` → 分组开关 → 事件级开关(**仅显式设置时覆盖分组**)。
@@ -284,11 +285,12 @@ AstrBot 将接收到的 `event` 推送到 QQ 群(目标群号配置 `minecraft_e
 | 分组开关 | 分组 | 默认 | 覆盖事件 |
 |---|---|---|---|
 | `push_chat_enabled` | CHAT | `true` | `chat` / `whisper` / `system` |
-| `push_bot_enabled` | BOT | `true` | `bot_status` / `death` / `bot_death_message` / `disconnect` / `client_connecting` / `client_connected` / `client_login_failed` / `client_reconfiguring` / `auto_reconnect` / `auto_eat_out_of_food` / `health_warning` / `health_autodisconnect` / `prio_status` / `msa_device_code` / `session_time_limit_warning` / `replay_started` / `replay_stopped` / `active_hours_connect` |
-| `push_server_enabled` | SERVER | `true` | `player_join` / `player_leave` / `achievement` / `player_death` / `attack` / `totem_pop` / `totem_empty` / `visual_enter` / `visual_leave` / `visual_logout` / `connection_denied` / `server_restarting` / `spawn_patrol_target` / `spawn_patrol_target_killed` |
+| `push_bot_enabled` | BOT | `true` | `bot_status` / `death` / `bot_death_message` / `disconnect` / `client_connecting` / `client_connected` / `client_login_failed` / `client_reconfiguring` / `auto_reconnect` / `auto_eat_out_of_food` / `health_warning` / `health_autodisconnect` / `prio_status` / `msa_device_code` / `session_time_limit_warning` / `replay_started` / `replay_stopped` / `active_hours_connect` / `spawn_patrol_target` / `spawn_patrol_target_killed` |
+| `push_threat_enabled` | THREAT | `true` | `attack` / `totem_pop` / `totem_empty` |
+| `push_server_enabled` | SERVER | `true` | `player_join` / `player_leave` / `achievement` / `player_death` / `visual_enter` / `visual_leave` / `visual_logout` / `connection_denied` / `server_restarting` |
 | `push_queue_enabled` | QUEUE | `true` | `queue_position` / `queue_complete` / `queue_start` / `queue_skip` / `queue_warning` |
 | `push_conn_enabled` | CONN | `false` | `client_player_connected` / `client_player_disconnected` / `spectator_connected` / `spectator_disconnected` |
-| `push_plugin_enabled` | PLUGIN | `true` | `plugin_load_failure` / `plugin_loaded` / `update_available` / `update_start` / `tasks_command` |
+| `push_ops_enabled` | OPS | `true` | `plugin_load_failure` / `plugin_loaded` / `update_available` / `update_start` / `tasks_command` |
 | `push_scan_enabled` | SCAN | `false` | `scan_found` |
 
 > 事件级开关默认值为 `跟随分组`;个别事件因语义(高频状态心跳、低敏感)建议默认不推,已在下方推送格式表标注 **默认不推**。
@@ -322,21 +324,22 @@ AstrBot 将接收到的 `event` 推送到 QQ 群(目标群号配置 `minecraft_e
 | `replay_started` | 跟随分组 | `[server_id] 🎥 录像开始` |
 | `replay_stopped` | 跟随分组 | `[server_id] 🎥 录像结束`(有文件名时附 `: {file}`) |
 | `active_hours_connect` | 跟随分组 | `[server_id] ⏰ 活跃时段连接触发`(will_wait=true 时附 `等待 1 分钟`) |
+| `spawn_patrol_target` | 跟随分组 | `[server_id] 🎯 巡逻发现目标: {player} [x,y,z]` |
+| `spawn_patrol_target_killed` | 跟随分组 | `[server_id] 💀 巡逻击杀目标: {player} ({message})` |
+| **THREAT** | | |
+| `attack` | 跟随分组 | `[server_id] ⚠ 玩家 {player} 攻击了 Bot [x,y,z]` |
+| `totem_pop` | 跟随分组 | `[server_id] ⚠ 有人 totem 弹出, 剩余 n 个` |
+| `totem_empty` | 跟随分组 | `[server_id] ⚠ 有人已无 totem, 警惕` |
 | **SERVER** | | |
 | `player_join` | 跟随分组 | `[server_id] {message}` |
 | `player_leave` | 跟随分组 | `[server_id] {message}` |
 | `achievement` | 跟随分组 | `[server_id] 🏆 玩家 {player} 达成了成就: {achievement}` |
-| `player_death` | 跟随分组 | `[server_id] 💀 玩家 {victim} 死亡了`(有击杀者/武器时附 `被 {killer} 击杀 [{weapon}]`) |
-| `attack` | 跟随分组 | `[server_id] ⚠ 玩家 {player} 攻击了 Bot [x,y,z]` |
-| `totem_pop` | 跟随分组 | `[server_id] ⚠ 有人 totem 弹出, 剩余 n 个` |
-| `totem_empty` | 跟随分组 | `[server_id] ⚠ 有人已无 totem, 警惕` |
+| `player_death` | 跟随分组 | `[server_id] 💀 玩家 {victim} {cause}`(有击杀者/武器时附 ` ({killer} [{weapon}])`) |
 | `visual_enter` | 跟随分组 | `[server_id] 👁 玩家 {player} 进入视野 [x,y,z]` |
 | `visual_leave` | 跟随分组 | `[server_id] 👁 玩家 {player} 离开视野 [x,y,z]` |
 | `visual_logout` | 跟随分组 | `[server_id] 👁 玩家 {player} 退出游戏 [x,y,z]` |
 | `connection_denied` | 跟随分组 | `[server_id] 🚫 拒绝玩家 {player} 连接 (reason={reason})`(附 IP 可选) |
 | `server_restarting` | 跟随分组 | `[server_id] ⚠ 服务器重启: {message}` |
-| `spawn_patrol_target` | 跟随分组 | `[server_id] 🎯 巡逻发现目标: {player} [x,y,z]` |
-| `spawn_patrol_target_killed` | 跟随分组 | `[server_id] 💀 巡逻击杀目标: {player} ({message})` |
 | **QUEUE** | | |
 | `queue_start` | 跟随分组 | `[server_id] ⚠ 开始排队 (被踢到队列)`(was_online=true 时带 `在线 x s 后被踢`) |
 | `queue_skip` | 跟随分组 | `[server_id] 跳过排队, 直接进服` |
@@ -348,7 +351,7 @@ AstrBot 将接收到的 `event` 推送到 QQ 群(目标群号配置 `minecraft_e
 | `client_player_disconnected` | 跟随分组(分组默认 `false`) | `[server_id] 🔌 控制玩家 {player} 断开代理`(带 reason 时附 `: {reason}`) |
 | `spectator_connected` | 跟随分组(分组默认 `false`) | `[server_id] 👁 观察者 {player} 已连接代理 (MC {mc_version})` |
 | `spectator_disconnected` | 跟随分组(分组默认 `false`) | `[server_id] 👁 观察者 {player} 已断开代理` |
-| **PLUGIN** | | |
+| **OPS** | | |
 | `plugin_load_failure` | 跟随分组 | `[server_id] ❌ 插件加载失败: {id} ({message})` |
 | `plugin_loaded` | 跟随分组 | `[server_id] 📦 插件加载成功: {id} v{version}` |
 | `update_available` | 跟随分组 | `[server_id] 📦 有新版本可用: {version}` |
@@ -372,10 +375,11 @@ AstrBot 将接收到的 `event` 推送到 QQ 群(目标群号配置 `minecraft_e
 | `push_enabled` | `true` | S 端 QQ 推送总开关(§12.1) |
 | `push_chat_enabled` | `true` | CHAT 分组推送开关(§12.1) |
 | `push_bot_enabled` | `true` | BOT 分组推送开关(§12.1) |
+| `push_threat_enabled` | `true` | THREAT 分组推送开关(§12.1) |
 | `push_server_enabled` | `true` | SERVER 分组推送开关(§12.1) |
 | `push_queue_enabled` | `true` | QUEUE 分组推送开关(§12.1) |
 | `push_conn_enabled` | `false` | CONN 分组推送开关(§12.1) |
-| `push_plugin_enabled` | `true` | PLUGIN 分组推送开关(§12.1) |
+| `push_ops_enabled` | `true` | OPS 分组推送开关(§12.1) |
 | `push_scan_enabled` | `false` | SCAN 分组推送开关(§12.1) |
 | `push_{event_type}` | `跟随分组` | 事件级推送开关(§12.1,仅显式设置时生效) |
 
@@ -400,3 +404,6 @@ AstrBot 将接收到的 `event` 推送到 QQ 群(目标群号配置 `minecraft_e
 | 2026-09-10 | v1.5 | 新增 `plugin_loaded` 事件(对应 Discord `PluginLoadedEvent` 通知);补充 3c3u.org 服务器消息路由说明(所有聊天统一走 `SystemChatEvent` 及解析顺序/正则);`plugin_load_failure`/`plugin_loaded` 加入 QQ 推送格式表 |
 | 2026-09-10 | v1.6 | 新增 4 个代理控制连接事件(对齐 Discord `PlayerConnectedEvent`/`PlayerDisconnectedEvent`/`SpectatorConnectedEvent`/`SpectatorDisconnectedEvent`):`client_player_connected`/`client_player_disconnected`/`spectator_connected`/`spectator_disconnected`;3c3u 说明改写为「解析全部由 G 端完成、S 端只消费」;新增 §6.1 G 端 system 兜底消息再解析规划 |
 | 2026-09-10 | v1.7 | §6 事件总表增加**分类**(CHAT/BOT/SERVER/QUEUE/CONN/PLUGIN/SCAN)与**语义(触发时机)**描述;§12 推送改为**三层开关体系**(总开关 `push_enabled` → 分组开关 `push_{cn}_enabled` → 事件级开关 `push_{event_type}`),覆盖 §13 配置表;3c3u 私聊/公共解析说明同步为 `ChatMessageParser` 当前实现(`You` sender 语义、`\|\|` 保留、`>` 保留为消息) |
+| 2026-09-10 | v1.8 | **成就解析修正**:兼容 `[成就名]` 方括号格式(3c3u 实际为 `has made the advancement [xxx]`,此前只有冒号);**新增死亡解析**:`victim was/were/got/died ...` → `player_death`(输出 `victim`/`cause`/`killer`/`weapon`);§6.1 兜底表移除已归类的服务器死亡广播 |
+| 2026-09-10 | v1.8.1 | G 端解析增加**translate 键预判**(依据原始组件):`chat.type.advancement.*` → 成就、`death.*` 或含 `%1$s` 模板 → 玩家死亡,覆盖 `was/were/got/died` 前缀之外的死亡动词(坠亡/溺水等);adventure 5.0 API(`TranslationArgument.arguments()`) |
+| 2026-09-10 | v1.9 | **分组重定义**:新增 `THREAT` 分类(`attack`/`totem_pop`/`totem_empty`,Bot 遭攻击威胁,独立开关 `push_threat_enabled`,避免被 SERVER 总开关连带关闭);`spawn_patrol_target`/`spawn_patrol_target_killed` 移入 `BOT`(Bot 主动防御模块);`PLUGIN` 更名为 `OPS`(含 `update_*`/`tasks_command` 运维事件,开关改 `push_ops_enabled`);`connection_denied` 保留在 SERVER(代理安全,默认推送) |

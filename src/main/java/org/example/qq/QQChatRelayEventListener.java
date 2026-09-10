@@ -8,7 +8,14 @@ import com.zenith.event.chat.WhisperChatEvent;
 import com.zenith.event.message.PrivateMessageSendEvent;
 import com.zenith.event.server.ServerPlayerConnectedEvent;
 import com.zenith.event.server.ServerPlayerDisconnectedEvent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.TranslationArgument;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.example.util.ChatMessageParser;
+
+import java.util.List;
 
 public class QQChatRelayEventListener {
     private final QQBot qqBot;
@@ -48,7 +55,8 @@ public class QQChatRelayEventListener {
 
     public void handleSystemChatEvent(final SystemChatEvent event) {
         final String message = event.message();
-        qqBot.debugEvent("SystemChatEvent", message);
+        qqBot.debugEvent("SystemChatEvent", message + " | component=" + GsonComponentSerializer.gson().serialize(event.component()));
+        if (isDeathByTranslate(event)) return;
         final var priv = ChatMessageParser.parsePrivate(message);
         if (priv.isPresent()) {
             final String sender = priv.get().sender();
@@ -82,9 +90,42 @@ public class QQChatRelayEventListener {
             qqBot.sendEvent("achievement", data);
             return;
         }
+        final var death = ChatMessageParser.parseDeath(message);
+        if (death.isPresent()) {
+            pushPlayerDeath(death.get());
+            return;
+        }
         var data = new JsonObject();
         data.addProperty("message", message);
         qqBot.sendEvent("system", data);
+    }
+
+    private boolean isDeathByTranslate(final SystemChatEvent event) {
+        if (!(event.component() instanceof TranslatableComponent tc)) return false;
+        final String key = tc.key();
+        if (key == null || !(key.startsWith("death.") || key.contains("%1$s"))) return false;
+        final List<TranslationArgument> args = tc.arguments();
+        String victim = "";
+        if (!args.isEmpty() && args.get(0).value() instanceof TextComponent text) {
+            victim = text.content();
+        }
+        if (victim.isEmpty()) {
+            final int space = event.message().indexOf(' ');
+            if (space > 0) victim = event.message().substring(0, space);
+        }
+        if (victim.isEmpty()) return false;
+        final String cause = event.message().substring(victim.length()).trim();
+        pushPlayerDeath(ChatMessageParser.toPlayerDeath(victim, cause));
+        return true;
+    }
+
+    private void pushPlayerDeath(final ChatMessageParser.PlayerDeathMessage death) {
+        var data = new JsonObject();
+        data.addProperty("victim", death.victim());
+        data.addProperty("cause", death.cause());
+        data.addProperty("killer", death.killer());
+        data.addProperty("weapon", death.weapon());
+        qqBot.sendEvent("player_death", data);
     }
 
     public void handleServerPlayerConnectedEvent(final ServerPlayerConnectedEvent event) {
