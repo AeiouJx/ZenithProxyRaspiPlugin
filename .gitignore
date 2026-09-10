@@ -24,6 +24,7 @@ __pycache__/
 maps/
 replays/
 plugins/
+/plane.md
 
 dataGenerator/run
 /dataGenerator/.gradle
