@@ -53,7 +53,9 @@
 ```json
 {
   "type": "hello",
-  "server_id": "main",
+  "server_id": "raspberrypi-b7e42d91",
+  "account": "Pearl",
+  "hwid": "dc:a6:32:1e:4f:9a",
   "server_name": "My Minecraft Server",
   "mod_version": "1.0.0",
   "capabilities": ["chat", "whisper", "query", "task"]
@@ -64,7 +66,7 @@
 ```json
 {
   "type": "hello_ack",
-  "server_id": "main",
+  "server_id": "raspberrypi-b7e42d91",
   "capabilities": ["chat", "query", "task"],
   "timestamp": 1693123456
 }
@@ -263,7 +265,7 @@ Java 端需要实现：
 2. **鉴权**：请求头 `Authorization: Bearer {TOKEN}`
 3. **握手**：连接后发送 `hello` 消息（推荐）或 `heartbeat`（兼容）
 4. **心跳**：定期发送 `heartbeat` 保活
-5. **事件上报**：chat/whisper/system/player_join/player_leave/bot_status/death
+5. **事件上报**：chat/whisper/system/player_join/player_leave/bot_status/death/achievement/player_death/attack/totem/visual/connection_denied/queue/health
 6. **任务处理**：接收 `task`，执行后返回 `task_result`
 7. **查询处理**：接收 `query`，执行后返回 `query_result`
 
@@ -299,11 +301,19 @@ Java 端需要实现：
 |---|---|---|---|
 | 公共聊天 | `chat` | `sender`(string), `message`(string) | 任何玩家在公共频道发言 |
 | 私聊 | `whisper` | `outgoing`(bool), `sender`(string), `receiver`(string), `message`(string) | 私聊消息 |
-| 玩家加入 | `player_join` | `player`(string) | 玩家加入服务器 |
-| 玩家离开 | `player_leave` | `player`(string) | 玩家离开服务器 |
+| 玩家加入 | `player_join` | `player`(string), `message`(string) | 玩家加入服务器 |
+| 玩家离开 | `player_leave` | `player`(string), `message`(string) | 玩家离开服务器 |
 | 系统消息 | `system` | `message`(string) | 服务器系统消息（如成就、命令反馈） |
-| Bot 死亡 | `death` | `death_message`(string, 可选) | Bot 实体死亡 |
+| Bot 死亡 | `death` | `position`{x,y,z} | Bot 实体死亡(含死亡坐标) |
 | 成就 | `achievement` | `player`(string), `achievement`(string) | 玩家获得成就 |
+| 玩家死亡 | `player_death` | `victim`(string), `killer`(string?), `weapon`(string?) | 玩家死亡（`DeathMessageChatEvent`） |
+| 攻击告警 | `attack` | `player`(string), `x`(num), `y`(num), `z`(num) | 玩家攻击 Bot |
+| totem 告警 | `totem_pop` / `totem_empty` | `totems_remaining`(int) / - | totem 被消耗 / 无备用 totem |
+| 视野进出 | `visual_enter` / `visual_leave` | `player`(string), `x`(int), `y`(int), `z`(int) | 玩家进入/离开视野 |
+| 视野下线 | `visual_logout` | `player`(string), `x`(int), `y`(int), `z`(int) | 视野内玩家退出游戏(最后下线坐标) |
+| 连接拒绝 | `connection_denied` | `player`(string), `ip`(string), `reason`(string) | 黑名单/非白名单连接被拒 |
+| 排队状态 | `queue_position` / `queue_complete` | `position`(int) / `duration_seconds`(int) | 队位更新/排完 |
+| 扫描发现 | `scan_found` | `target`(string), `name`(string), `x`(int), `y`(int), `z`(int), `distance`(int) | 扫描到目标方块/实体(首次) |
 
 ### 8.2 消息格式
 

@@ -48,10 +48,24 @@ public class RaspiConfig {
     public static class BridgeConfig {
         public boolean enabled = false;
         public String wsUrl = "ws://127.0.0.1:8765/ws";
-        public String sharedToken = "change-me";
+        public String token = "change-me";
         public String serverId = "default";
+        public String instanceId = "";
+        public String serverName = "ZenithProxy Raspi";
         public int heartbeatIntervalSeconds = 5;
         public int reconnectIntervalSeconds = 5;
+        public boolean eventDebugLogging = false;
+        public final ScanConfig scan = new ScanConfig();
+    }
+
+    public static class ScanConfig {
+        public boolean enabled = false;
+        public int radius = 16;
+        public int intervalSeconds = 5;
+        public final java.util.ArrayList<String> targets = com.google.common.collect.Lists.newArrayList(
+            "player", "ender_pearl", "chest", "ender_chest", "shulker_box",
+            "soul_sand", "bubble_column", "sign", "item_frame", "redstone"
+        );
     }
 
     public final PromoterConfig promoter = new PromoterConfig();
